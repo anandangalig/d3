@@ -47,6 +47,8 @@ const xAxisGroup = mainGroup
   .attr('class', 'x axis')
   .attr('transform', 'translate(0,' + height + ')');
 
+const transition = d3.transition().duration(800);
+
 const update = data => {
   let RevOrProfit = controlFlag ? 'revenue' : 'profit';
 
@@ -74,36 +76,36 @@ const update = data => {
   // ============= D3 Update pattern: ================================
   // 1. JOIN the data
   const rectangles = mainGroup.selectAll('rect').data(data);
-  // 2. remove unnecessary data
+  // 2. remove unnecessary data: .exit and .remove to remove the surplus elements based on data count and target element count
   rectangles.exit().remove();
-  // 3. update old data: any callback passed in attr() has access to the iterator item due to selectAll
-  rectangles
-    .attr('x', ({ month }) => xValueGenerator(month))
-    .attr('y', item => {
-      return yValueGenerator(item[RevOrProfit]);
-    })
-    .attr('height', function(item) {
-      return height - yValueGenerator(item[RevOrProfit]); // since we have to paint down from the Y value of the rectangle origin point
-    })
-    .attr('width', xValueGenerator.bandwidth); // averaged width of each band after calculations of scaleBand()
-  // 4. create new data
-  rectangles
-    .enter()
+  // 3. update old/ add new data: any callback passed in attr() has access to the iterator item due to selectAll
+  // prettier-ignore
+  rectangles.enter() // create new elements if any
     .append('rect')
-    .attr('x', ({ month }) => xValueGenerator(month))
-    .attr('y', item => {
-      return yValueGenerator(item[RevOrProfit]);
-    })
-    .attr('height', function(item) {
-      return height - yValueGenerator(item[RevOrProfit]); // since we have to paint down from the Y value of the rectangle origin point
-    })
-    .attr('width', xValueGenerator.bandwidth) // averaged width of each band after calculations of scaleBand()
-    .attr('fill', 'green');
+        .attr('fill', 'green')
+        .attr('y', yValueGenerator(0))
+        .attr('x', function(d) {
+            return xValueGenerator(d.month);
+        })
+        .attr('height', 0)
+        .attr('width', xValueGenerator.bandwidth)
+        .merge(rectangles) // merges existing elements with new; following code applies to both cases.
+        .transition(transition)
+            .attr('x', function(d) {
+                return xValueGenerator(d.month);
+            })
+            .attr('width', xValueGenerator.bandwidth)
+            .attr('y', function(d) {
+                return yValueGenerator(d[RevOrProfit]);
+            })
+            .attr('height', function(d) {
+                return height - yValueGenerator(d[RevOrProfit]);
+            });
 };
 
 // fetch the data and call the updater:
 d3.json('./data/revenues.json').then(data => {
-  // coercing the revenue strings to number:
+  // coercing the revenue/profit strings to number:
   data.forEach(item => {
     item.revenue = +item.revenue;
     item.profit = +item.profit;
@@ -114,5 +116,5 @@ d3.json('./data/revenues.json').then(data => {
   d3.interval(() => {
     update(data);
     controlFlag = !controlFlag;
-  }, 1000);
+  }, 2000);
 });

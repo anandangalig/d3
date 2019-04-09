@@ -54,7 +54,9 @@ const update = data => {
 
   // ================= Data dependent updates: ========================
   // update Y axis label
-  yLabel.text(`${RevOrProfit}`.charAt(0).toUpperCase() + `${RevOrProfit}`.slice(1));
+  yLabel
+    .transition(transition)
+    .text(`${RevOrProfit}`.charAt(0).toUpperCase() + `${RevOrProfit}`.slice(1));
 
   // adding data dependent attributes during data update:
   xValueGenerator.domain(data.map(item => item.month));
@@ -70,8 +72,8 @@ const update = data => {
   const yAxisCall = d3.axisLeft(yValueGenerator).tickFormat(function(d) {
     return '$' + d;
   });
-  xAxisGroup.call(xAxisCall);
-  yAxisgroup.call(yAxisCall);
+  xAxisGroup.transition(transition).call(xAxisCall);
+  yAxisgroup.transition(transition).call(yAxisCall);
 
   // ============= D3 Update pattern: ================================
   // 1. JOIN the data

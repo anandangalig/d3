@@ -73,6 +73,7 @@ g.append('text')
 // update pattern ======================================================
 // prettier-ignore
 const update = data => {
+  const t = d3.transition().duration(450);
   const selection = g.selectAll('circle').data(data, function (d) { return d.country; });
   // the second parameter is a function that sets the key to each data point to keep the binding consistent to specific DOM elements  (i.e. paint the same continent with same color with each interval)
 
@@ -85,6 +86,7 @@ const update = data => {
       return getContinentColor(d.continent);
     })
     .merge(selection)
+    .transition(t)
       .attr('cy', d => {
         return y(d.life_exp);
       })
@@ -119,5 +121,5 @@ d3.json('data/data.json').then(function(data) {
     }
 
     update(cleanedData[arrayPosition]);
-  }, 200);
+  }, 500);
 });

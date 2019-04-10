@@ -70,10 +70,17 @@ g.append('text')
   .attr('transform', 'rotate(-90)')
   .text('Life Expectancy');
 
+const yearText = g
+  .append('text')
+  .attr('x', width - 50)
+  .attr('y', height - 50)
+  .attr('text-anchor', 'middle')
+  .attr('opacity', '0.4')
+  .attr('font-size', 40);
 // update pattern ======================================================
 // prettier-ignore
 const update = data => {
-  const t = d3.transition().duration(450);
+  const t = d3.transition().duration(95);
   const selection = g.selectAll('circle').data(data, function (d) { return d.country; });
   // the second parameter is a function that sets the key to each data point to keep the binding consistent to specific DOM elements  (i.e. paint the same continent with same color with each interval)
 
@@ -119,7 +126,8 @@ d3.json('data/data.json').then(function(data) {
     } else {
       arrayPosition++;
     }
-
+    let year = data[arrayPosition].year;
+    yearText.text(year);
     update(cleanedData[arrayPosition]);
-  }, 500);
+  }, 100);
 });

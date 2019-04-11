@@ -77,10 +77,37 @@ const yearText = g
   .attr('text-anchor', 'middle')
   .attr('opacity', '0.4')
   .attr('font-size', 40);
+
+// legend: ============================================================
+const continents = ['africa', 'americas', 'asia', 'europe'];
+
+const legend = g
+  .append('g')
+  .attr('class', 'HERE!')
+  .attr('transform', `translate(${width - 10}, ${height - 200})`);
+
+continents.map((continent, index) => {
+  legend
+    .append('rect')
+    .attr('width', 10)
+    .attr('height', 10)
+    .attr('fill', getContinentColor(continent))
+    .attr('transform', `translate(0, ${index * 20})`);
+
+  legend
+    .append('text')
+    .attr('x', -5)
+    .attr('y', 10)
+    .attr('text-anchor', 'end')
+    .style('text-transform', 'capitalize')
+    .text(continent)
+    .attr('transform', `translate(0, ${index * 20})`);
+});
+
 // update pattern ======================================================
 // prettier-ignore
 const update = data => {
-  const t = d3.transition().duration(95);
+  const t = d3.transition().duration(145);
   const selection = g.selectAll('circle').data(data, function (d) { return d.country; });
   // the second parameter is a function that sets the key to each data point to keep the binding consistent to specific DOM elements  (i.e. paint the same continent with same color with each interval)
 
@@ -120,6 +147,8 @@ d3.json('data/data.json').then(function(data) {
 
   let arrayPosition = 0;
 
+  update(cleanedData[arrayPosition]);
+
   d3.interval(() => {
     if (arrayPosition == 214) {
       arrayPosition = 0;
@@ -129,5 +158,5 @@ d3.json('data/data.json').then(function(data) {
     let year = data[arrayPosition].year;
     yearText.text(year);
     update(cleanedData[arrayPosition]);
-  }, 100);
+  }, 150);
 });

@@ -28,14 +28,10 @@ const x = d3
   .range([0, width])
   .domain([300, 150000]);
 
-const getRadius = d3
+const getArea = d3
   .scaleLinear()
-  .range([5, 40])
+  .range([25 * Math.PI, 1500 * Math.PI])
   .domain([2000, 1400000000]);
-// const area = d3
-//   .scaleLinear()
-//   .range([25 * Math.PI, 1500 * Math.PI])
-//   .domain([2000, 1400000000]);
 
 const getContinentColor = d3.scaleOrdinal(d3.schemePastel1); // domain is omitted scaleOrdinal([[domain], range])
 
@@ -108,11 +104,16 @@ continents.map((continent, index) => {
 // prettier-ignore
 const update = data => {
   const t = d3.transition().duration(145);
+
+  // 1. select, start the Data Join:
+  // 2. .data() returns update items that are staying from old render to new render:
   const selection = g.selectAll('circle').data(data, function (d) { return d.country; });
   // the second parameter is a function that sets the key to each data point to keep the binding consistent to specific DOM elements  (i.e. paint the same continent with same color with each interval)
 
+  // 3. remove DOM elements that are not present in the new data set:
   selection.exit().remove();
 
+  // 4. create new ones:
   selection
     .enter()
     .append('circle')
@@ -127,10 +128,8 @@ const update = data => {
       .attr('cx', d => {
         return x(d.income);
       })
-      // .attr("r", (d)=>{ return Math.sqrt(area(d.population) / Math.PI) });
-      .attr('r', d => {
-        return getRadius(d.population);
-      })
+      .attr("r", (d)=>{ return Math.sqrt(getArea(d.population) / Math.PI) })
+      // population is converted to area in scale, then that vector is converted into diameter by dividing by Math.PI, then taken sq. root of it to get radius.
       .attr('data-country-name', (d)=>d.country);
 };
 

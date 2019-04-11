@@ -99,6 +99,23 @@ continents.map((continent, index) => {
     .text(continent)
     .attr('transform', `translate(0, ${index * 20})`);
 });
+// tooltip:
+const tooltip = d3
+  .tip()
+  .attr('class', 'd3-tip')
+  .html(function(d) {
+    let { continent, country, income, life_exp, population } = d;
+    life_exp = d3.format('.2f')(life_exp);
+    income = d3.format('$,.0f')(income);
+    population = d3.format(',.0f')(population);
+
+    return `<strong>Country:</strong><span style='color:red'> ${country}</span><br>
+      <strong>Continent:</strong><span style='color:red; text-transform:capitalize'> ${continent}</span><br>
+      <strong>Income:</strong><span style='color:red'> ${income}</span><br>
+      <strong>Life Exp.:</strong><span style='color:red'> ${life_exp}</span><br>
+      <strong>Population:</strong><span style='color:red'> ${population}</span><br>`;
+  });
+g.call(tooltip);
 
 // update pattern ======================================================
 // prettier-ignore
@@ -120,6 +137,8 @@ const update = data => {
     .attr('fill', d => {
       return getContinentColor(d.continent);
     })
+    .on('mouseover', tooltip.show)
+    .on('mouseout', tooltip.hide)
     .merge(selection)
     .transition(t)
       .attr('cy', d => {
